@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, TouchableOpacity, Animated, StyleSheet, Image } from 'react-native';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 
 const HeroAvatar = ({ size = 240, onPress, style }) => {
-  const bounceAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(0);
-  const auraRotation = new Animated.Value(0);
-  const auraPulse = new Animated.Value(1);
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const auraRotation = useRef(new Animated.Value(0)).current;
+  const auraPulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     // Animação de entrada
@@ -47,7 +47,7 @@ const HeroAvatar = ({ size = 240, onPress, style }) => {
         ]),
       ])
     ).start();
-  }, []);
+  }, [bounceAnim, scaleAnim, auraRotation, auraPulse]);
 
   const animatedStyle = {
     transform: [

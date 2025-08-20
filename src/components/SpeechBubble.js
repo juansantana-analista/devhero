@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 import FixedText from './FixedText';
 import { colors } from '../theme/colors';
@@ -6,8 +6,8 @@ import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 
 const SpeechBubble = ({ children, variant = 'default', style, animate = true }) => {
-  const fadeAnim = new Animated.Value(animate ? 0 : 1);
-  const scaleAnim = new Animated.Value(animate ? 0.8 : 1);
+  const fadeAnim = useRef(new Animated.Value(animate ? 0 : 1)).current;
+  const scaleAnim = useRef(new Animated.Value(animate ? 0.8 : 1)).current;
 
   useEffect(() => {
     if (animate) {
@@ -25,7 +25,7 @@ const SpeechBubble = ({ children, variant = 'default', style, animate = true }) 
         }),
       ]).start();
     }
-  }, [animate]);
+  }, [animate, fadeAnim, scaleAnim]);
 
   const getVariantStyle = () => {
     switch (variant) {

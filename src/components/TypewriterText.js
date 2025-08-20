@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   text: {
-    color: 'inherit',
+    color: colors.textPrimary,
   },
   cursor: {
     marginLeft: 2,

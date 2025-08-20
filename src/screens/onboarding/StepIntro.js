@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,16 +8,14 @@ import HeroAvatar from '../../components/HeroAvatar';
 import SpeechBubble from '../../components/SpeechBubble';
 import BottomCTA from '../../components/BottomCTA';
 import ProgressBar from '../../components/ProgressBar';
+import TypewriterText from '../../components/TypewriterText';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 
 const StepIntro = ({ navigation }) => {
-  const [currentMessage, setCurrentMessage] = useState(0);
+  const [isTypewriterComplete, setIsTypewriterComplete] = useState(false);
   
-  const messages = [
-    "Oi, eu sou seu guia DevHero!",
-    "Só 6 passos rápidos e começamos sua primeira missão."
-  ];
+  const message = "Oi, eu sou seu guia DevHero! Só 6 passos rápidos e começamos sua primeira missão.";
 
   useEffect(() => {
     // Vibração leve de boas-vindas
@@ -25,17 +23,13 @@ const StepIntro = ({ navigation }) => {
     console.log('StepIntro: Componente montado');
   }, []);
 
-  const handleContinue = () => {
-    if (currentMessage < messages.length - 1) {
-      setCurrentMessage(prev => prev + 1);
-      safeHaptics.selection();
-      console.log('StepIntro: Mensagem alterada para:', currentMessage + 1);
-    } else {
-      navigation.navigate('StepLanguages');
-    }
-  };
+  const handleContinue = useCallback(() => {
+    navigation.navigate('StepLanguages');
+  }, [navigation]);
 
-  const buttonTitle = currentMessage < messages.length - 1 ? 'CONTINUAR' : 'COMEÇAR';
+  const handleTypewriterComplete = useCallback(() => {
+    setIsTypewriterComplete(true);
+  }, []);
 
   return (
     <LinearGradient
@@ -49,20 +43,24 @@ const StepIntro = ({ navigation }) => {
         <View style={styles.content}>
           {/* Speech Bubble */}
           <View style={styles.bubbleContainer}>
-            <SpeechBubble key={currentMessage} animate={currentMessage === 0}>
-              {messages[currentMessage]}
+            <SpeechBubble animate={true}>
+              <TypewriterText 
+                text={message}
+                speed={50}
+                onComplete={handleTypewriterComplete}
+              />
             </SpeechBubble>
           </View>
 
           {/* Avatar Central */}
           <View style={styles.avatarContainer}>
-            <HeroAvatar key={`avatar-${currentMessage}`} size={spacing.avatarSize} />
+            <HeroAvatar size={spacing.avatarSize} />
           </View>
         </View>
 
         {/* Bottom CTA */}
         <BottomCTA
-          primaryTitle={buttonTitle}
+          primaryTitle="COMEÇAR"
           primaryOnPress={handleContinue}
           showSecondary={false}
         />
