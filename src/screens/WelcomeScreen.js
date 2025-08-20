@@ -38,10 +38,11 @@ const WelcomeScreen = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={colors.backgroundGradient}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <LinearGradient
+        colors={colors.backgroundGradient}
+        style={styles.backgroundGradient}
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
           {/* Logo/Título opcional */}
@@ -88,13 +89,21 @@ const WelcomeScreen = ({ navigation }) => {
           secondaryOnPress={handleLogin}
         />
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   safeArea: {
     flex: 1,

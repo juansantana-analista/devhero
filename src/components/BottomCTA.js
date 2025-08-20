@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
@@ -21,10 +20,6 @@ const BottomCTA = ({
 
   return (
     <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }, style]}>
-      <LinearGradient
-        colors={['transparent', colors.overlay]}
-        style={styles.gradient}
-      />
       <View style={styles.content}>
         <PrimaryButton
           title={primaryTitle}
@@ -52,13 +47,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingTop: spacing.xl,
-  },
-  gradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 120,
   },
   content: {
     paddingHorizontal: spacing.screenPadding,
