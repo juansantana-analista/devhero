@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { safeHaptics } from '../../utils/haptics';
@@ -7,10 +7,10 @@ import * as Haptics from 'expo-haptics';
 import OptionCard from '../../components/OptionCard';
 import BottomCTA from '../../components/BottomCTA';
 import ProgressBar from '../../components/ProgressBar';
+import FixedText from '../../components/FixedText';
 import { useOnboardingStore } from '../../state/useOnboardingStore';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { typography } from '../../theme/typography';
 
 const StepLevel = ({ navigation }) => {
   const { level, setLevel } = useOnboardingStore();
@@ -47,8 +47,8 @@ const StepLevel = ({ navigation }) => {
     setSelectedLevel(levelId);
     setLevel(levelId);
     
-         // Haptic feedback
-     safeHaptics.selection();
+    // Haptic feedback
+    safeHaptics.selection();
   };
 
   const handleContinue = () => {
@@ -75,9 +75,9 @@ const StepLevel = ({ navigation }) => {
         >
           {/* Título */}
           <View style={styles.header}>
-            <Text style={styles.title}>
+            <FixedText variant="h2" color={colors.textPrimary} style={styles.title}>
               Qual é o seu nível hoje?
-            </Text>
+            </FixedText>
           </View>
 
           {/* Opções de Nível */}
@@ -126,10 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    ...typography.h2,
-    color: colors.textPrimary,
     textAlign: 'center',
-    lineHeight: typography.lineHeights.normal * typography.h2.fontSize,
   },
   optionsContainer: {
     flex: 1,

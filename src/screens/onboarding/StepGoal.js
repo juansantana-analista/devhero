@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { safeHaptics } from '../../utils/haptics';
@@ -7,10 +7,10 @@ import * as Haptics from 'expo-haptics';
 import OptionCard from '../../components/OptionCard';
 import BottomCTA from '../../components/BottomCTA';
 import ProgressBar from '../../components/ProgressBar';
+import FixedText from '../../components/FixedText';
 import { useOnboardingStore } from '../../state/useOnboardingStore';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { typography } from '../../theme/typography';
 
 const StepGoal = ({ navigation }) => {
   const { dailyGoalMin, setDailyGoalMin } = useOnboardingStore();
@@ -47,8 +47,8 @@ const StepGoal = ({ navigation }) => {
     setSelectedGoal(goalMinutes);
     setDailyGoalMin(goalMinutes);
     
-         // Haptic feedback
-     safeHaptics.selection();
+    // Haptic feedback
+    safeHaptics.selection();
   };
 
   const handleContinue = () => {
@@ -75,12 +75,12 @@ const StepGoal = ({ navigation }) => {
         >
           {/* Título */}
           <View style={styles.header}>
-            <Text style={styles.title}>
+            <FixedText variant="h2" color={colors.textPrimary} style={styles.title}>
               Defina sua meta diária
-            </Text>
-            <Text style={styles.subtitle}>
+            </FixedText>
+            <FixedText variant="body" color={colors.textSecondary} style={styles.subtitle}>
               Manter uma sequência diária acelera sua evolução.
-            </Text>
+            </FixedText>
           </View>
 
           {/* Opções de Meta */}
@@ -129,17 +129,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    ...typography.h2,
-    color: colors.textPrimary,
     textAlign: 'center',
-    lineHeight: typography.lineHeights.normal * typography.h2.fontSize,
     marginBottom: spacing.md,
   },
   subtitle: {
-    ...typography.body,
-    color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: typography.lineHeights.relaxed * typography.body.fontSize,
   },
   optionsContainer: {
     flex: 1,

@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import { TouchableOpacity, View, Text, Animated, StyleSheet } from 'react-native';
+import { TouchableOpacity, View, Animated, StyleSheet } from 'react-native';
+import FixedText from './FixedText';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
-import { typography } from '../theme/typography';
 
 const OptionCard = ({ 
   title, 
@@ -56,17 +56,25 @@ const OptionCard = ({
         <View style={styles.content}>
           {icon && (
             <View style={styles.iconContainer}>
-              <Text style={styles.icon}>{icon}</Text>
+              <FixedText style={styles.icon}>{icon}</FixedText>
             </View>
           )}
           <View style={styles.textContainer}>
-            <Text style={[styles.title, { color: selected ? colors.textPrimary : colors.textSecondary }]}>
+            <FixedText 
+              variant="h3" 
+              color={selected ? colors.textPrimary : colors.textSecondary}
+              style={styles.title}
+            >
               {title}
-            </Text>
+            </FixedText>
             {description && (
-              <Text style={[styles.description, { color: selected ? colors.textSecondary : colors.textMuted }]}>
+              <FixedText 
+                variant="caption" 
+                color={selected ? colors.textSecondary : colors.textMuted}
+                style={styles.description}
+              >
                 {description}
-              </Text>
+              </FixedText>
             )}
           </View>
         </View>
@@ -118,11 +126,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    ...typography.h3,
     marginBottom: spacing.xs,
   },
   description: {
-    ...typography.caption,
+    // Estilo já definido no FixedText
   },
   selectedIndicator: {
     position: 'absolute',
