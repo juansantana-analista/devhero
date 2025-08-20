@@ -83,21 +83,21 @@ const HeroAvatar = ({ size = 240, onPress, style }) => {
       accessibilityRole={onPress ? "button" : "image"}
       accessibilityLabel="Avatar do DevHero"
     >
-             <Animated.View style={[styles.avatarWrapper, animatedStyle]}>
-         {/* Aura de poder RPG */}
-         <Animated.View style={[styles.powerAura, { width: size * 1.4, height: size * 1.4 }, auraAnimatedStyle]}>
-           <Animated.View style={[styles.auraRing, { width: size * 1.2, height: size * 1.2 }]} />
-           <Animated.View style={[styles.auraRing, { width: size * 1.1, height: size * 1.1 }]} />
-           <Animated.View style={[styles.auraRing, { width: size * 1.0, height: size * 1.0 }]} />
-         </Animated.View>
-         
-         {/* Imagem do herói */}
-         <Image
-           source={require('../../assets/images/hero.png')}
-           style={[styles.heroImage, { width: size, height: size }]}
-           resizeMode="contain"
-         />
-       </Animated.View>
+      <Animated.View style={[styles.avatarWrapper, animatedStyle]}>
+        {/* Aura de poder RPG */}
+        <Animated.View style={[styles.powerAura, { width: size * 1.4, height: size * 1.4 }, auraAnimatedStyle]}>
+          <Animated.View style={[styles.auraRing, { width: size * 1.2, height: size * 1.2 }]} />
+          <Animated.View style={[styles.auraRing, { width: size * 1.1, height: size * 1.1 }]} />
+          <Animated.View style={[styles.auraRing, { width: size * 1.0, height: size * 1.0 }]} />
+        </Animated.View>
+        
+        {/* Imagem do herói */}
+        <Image
+          source={require('../../assets/images/hero.png')}
+          style={[styles.heroImage, { width: size, height: size }]}
+          resizeMode="contain"
+        />
+      </Animated.View>
     </Container>
   );
 };
@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-
   heroImage: {
     // A imagem será redimensionada automaticamente pelo resizeMode="contain"
   },

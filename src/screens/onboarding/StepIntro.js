@@ -22,12 +22,14 @@ const StepIntro = ({ navigation }) => {
   useEffect(() => {
     // Vibração leve de boas-vindas
     safeHaptics.impact(Haptics.ImpactFeedbackStyle.Light);
+    console.log('StepIntro: Componente montado');
   }, []);
 
   const handleContinue = () => {
     if (currentMessage < messages.length - 1) {
-      setCurrentMessage(currentMessage + 1);
+      setCurrentMessage(prev => prev + 1);
       safeHaptics.selection();
+      console.log('StepIntro: Mensagem alterada para:', currentMessage + 1);
     } else {
       navigation.navigate('StepLanguages');
     }
@@ -42,19 +44,19 @@ const StepIntro = ({ navigation }) => {
     >
       <SafeAreaView style={styles.safeArea}>
         {/* Progress Bar */}
-        <ProgressBar progress={0.17} /> {/* 1/6 = ~0.17 */}
+        <ProgressBar progress={0.17} />
         
         <View style={styles.content}>
           {/* Speech Bubble */}
           <View style={styles.bubbleContainer}>
-            <SpeechBubble key={currentMessage}>
+            <SpeechBubble key={currentMessage} animate={currentMessage === 0}>
               {messages[currentMessage]}
             </SpeechBubble>
           </View>
 
           {/* Avatar Central */}
           <View style={styles.avatarContainer}>
-            <HeroAvatar size={spacing.avatarSize} />
+            <HeroAvatar key={`avatar-${currentMessage}`} size={spacing.avatarSize} />
           </View>
         </View>
 
@@ -85,6 +87,8 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginTop: spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bubbleContainer: {
     width: '100%',

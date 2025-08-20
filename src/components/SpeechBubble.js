@@ -1,28 +1,31 @@
 import React, { useEffect } from 'react';
-import { View, Text, Animated, StyleSheet } from 'react-native';
+import { View, Animated, StyleSheet } from 'react-native';
+import FixedText from './FixedText';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 
-const SpeechBubble = ({ children, variant = 'default', style }) => {
-  const fadeAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(0.8);
+const SpeechBubble = ({ children, variant = 'default', style, animate = true }) => {
+  const fadeAnim = new Animated.Value(animate ? 0 : 1);
+  const scaleAnim = new Animated.Value(animate ? 0.8 : 1);
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 120,
-        friction: 4,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+    if (animate) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          tension: 120,
+          friction: 4,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [animate]);
 
   const getVariantStyle = () => {
     switch (variant) {
@@ -44,7 +47,9 @@ const SpeechBubble = ({ children, variant = 'default', style }) => {
     <Animated.View style={[styles.container, animatedStyle, style]}>
       <View style={[styles.bubble, getVariantStyle()]}>
         {typeof children === 'string' ? (
-          <Text style={styles.text}>{children}</Text>
+          <FixedText variant="body" color={colors.textPrimary} style={styles.text}>
+            {children}
+          </FixedText>
         ) : (
           children
         )}
@@ -74,10 +79,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   text: {
-    ...typography.body,
-    color: colors.textPrimary,
     textAlign: 'center',
-    lineHeight: typography.lineHeights.relaxed * typography.body.fontSize,
   },
   pointer: {
     position: 'absolute',

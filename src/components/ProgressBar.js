@@ -1,19 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 
 const ProgressBar = ({ progress = 0, style }) => {
-  const widthAnim = new Animated.Value(0);
+  const widthAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.timing(widthAnim, {
       toValue: progress,
       duration: 600,
-      useNativeDriver: false,
+      useNativeDriver: false, // Importante: false para animação de width
     }).start();
-  }, [progress]);
+  }, [progress, widthAnim]);
 
   const animatedWidth = widthAnim.interpolate({
     inputRange: [0, 1],
