@@ -14,8 +14,13 @@ import { spacing } from '../../theme/spacing';
 
 const StepIntro = ({ navigation }) => {
   const [isTypewriterComplete, setIsTypewriterComplete] = useState(false);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [showMessage, setShowMessage] = useState(true);
   
-  const message = "Oi, eu sou seu guia DevHero! Só 6 passos rápidos e começamos sua primeira missão.";
+  const messages = [
+    "Oi, eu sou seu guia DevHero!",
+    "Só 6 passos rápidos e começamos sua primeira missão."
+  ];
 
   useEffect(() => {
     // Vibração leve de boas-vindas
@@ -28,8 +33,20 @@ const StepIntro = ({ navigation }) => {
   }, [navigation]);
 
   const handleTypewriterComplete = useCallback(() => {
-    setIsTypewriterComplete(true);
-  }, []);
+    if (currentMessageIndex === 0) {
+      // Primeira mensagem completa, aguarda um pouco e depois mostra a segunda
+      setTimeout(() => {
+        setShowMessage(false);
+        setTimeout(() => {
+          setCurrentMessageIndex(1);
+          setShowMessage(true);
+        }, 500); // Aguarda 500ms para a mensagem desaparecer
+      }, 1000); // Aguarda 1s antes de começar a transição
+    } else {
+      // Segunda mensagem completa
+      setIsTypewriterComplete(true);
+    }
+  }, [currentMessageIndex]);
 
   return (
     <LinearGradient
@@ -44,11 +61,14 @@ const StepIntro = ({ navigation }) => {
           {/* Speech Bubble */}
           <View style={styles.bubbleContainer}>
             <SpeechBubble animate={true}>
-              <TypewriterText 
-                text={message}
-                speed={50}
-                onComplete={handleTypewriterComplete}
-              />
+              {showMessage && (
+                <TypewriterText 
+                  key={currentMessageIndex}
+                  text={messages[currentMessageIndex]}
+                  speed={50}
+                  onComplete={handleTypewriterComplete}
+                />
+              )}
             </SpeechBubble>
           </View>
 
