@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, ScrollView, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { safeHaptics } from '../../utils/haptics';
@@ -18,6 +18,9 @@ const StepSummary = ({ navigation }) => {
   const { languages, level, dailyGoalMin, motivation, setCompleted } = useOnboardingStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isTypewriterComplete, setIsTypewriterComplete] = useState(false);
+  const [showMissionMode, setShowMissionMode] = useState(false);
+  
+  const avatarScaleAnim = useRef(new Animated.Value(1)).current;
 
   const languageLabels = {
     html: 'HTML',
@@ -43,6 +46,17 @@ const StepSummary = ({ navigation }) => {
 
   const handleStartMission = async () => {
     setIsLoading(true);
+    
+    // Ativar modo missão - limpar tela e animar avatar
+    setShowMissionMode(true);
+    
+    // Animar avatar do canto superior direito para o centro com zoom
+    Animated.spring(avatarScaleAnim, {
+      toValue: 2.5,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
     
     // Simular preparação da primeira missão
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -74,6 +88,27 @@ const StepSummary = ({ navigation }) => {
     setIsTypewriterComplete(true);
   }, []);
 
+  const getAvatarStyle = () => {
+    if (!showMissionMode) {
+      return styles.avatarContainer;
+    }
+    
+    return {
+      ...styles.avatarContainer,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+      transform: [
+        { scale: avatarScaleAnim },
+      ],
+      zIndex: 1000,
+    };
+  };
+
   return (
     <LinearGradient
       colors={colors.backgroundGradient}
@@ -83,89 +118,98 @@ const StepSummary = ({ navigation }) => {
         {/* Progress Bar */}
         <ProgressBar progress={1} /> {/* 6/6 = 1 */}
         
-        <View style={styles.content}>
-          {/* Speech Bubble e Avatar na mesma linha (invertido) */}
-          <View style={styles.headerRow}>
-            <View style={styles.bubbleContainer}>
-              <SpeechBubble animate={true} arrowDirection="right">
-                <TypewriterText 
-                  text="Perfeito! Preparando sua primeira missão personalizada…"
-                  speed={50}
-                  onComplete={handleTypewriterComplete}
-                />
-              </SpeechBubble>
+        {!showMissionMode ? (
+          <View style={styles.content}>
+            {/* Speech Bubble e Avatar na mesma linha (invertido) */}
+            <View style={styles.headerRow}>
+              <View style={styles.bubbleContainer}>
+                <SpeechBubble animate={true} arrowDirection="right">
+                  <TypewriterText 
+                    text="Perfeito! Preparando sua primeira missão personalizada…"
+                    speed={50}
+                    onComplete={handleTypewriterComplete}
+                  />
+                </SpeechBubble>
+              </View>
+              
+              <View style={styles.avatarContainer}>
+                <HeroAvatar size={spacing.lg * 4} />
+              </View>
             </View>
-            
-            <View style={styles.avatarContainer}>
+
+            {/* Resumo das Escolhas */}
+            <ScrollView 
+              style={styles.summaryScroll}
+              contentContainerStyle={styles.summaryContainer}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Linguagens */}
+              <View style={styles.summarySection}>
+                <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
+                  🎯 Linguagens escolhidas:
+                </FixedText>
+                <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
+                  {languages.map(lang => languageLabels[lang]).join(', ')}
+                </FixedText>
+              </View>
+
+              {/* Nível */}
+              <View style={styles.summarySection}>
+                <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
+                  📊 Seu nível:
+                </FixedText>
+                <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
+                  {levelLabels[level]}
+                </FixedText>
+              </View>
+
+              {/* Meta Diária */}
+              <View style={styles.summarySection}>
+                <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
+                  ⏰ Meta diária:
+                </FixedText>
+                <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
+                  {dailyGoalMin} minutos por dia
+                </FixedText>
+              </View>
+
+              {/* Motivações */}
+              <View style={styles.summarySection}>
+                <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
+                  💪 Suas motivações:
+                </FixedText>
+                <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
+                  {motivation.map(mot => motivationLabels[mot]).join(', ')}
+                </FixedText>
+              </View>
+            </ScrollView>
+          </View>
+        ) : (
+          /* Modo Missão - Avatar centralizado com zoom */
+          <View style={styles.missionModeContainer}>
+            <Animated.View style={getAvatarStyle()}>
               <HeroAvatar size={spacing.lg * 4} />
+            </Animated.View>
+            
+            {/* Loader embaixo */}
+            <View style={styles.missionLoaderContainer}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <FixedText variant="body" color={colors.textSecondary} style={styles.missionLoaderText}>
+                Preparando sua primeira missão...
+              </FixedText>
             </View>
           </View>
+        )}
 
-          {/* Resumo das Escolhas */}
-          <ScrollView 
-            style={styles.summaryScroll}
-            contentContainerStyle={styles.summaryContainer}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Linguagens */}
-            <View style={styles.summarySection}>
-              <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
-                🎯 Linguagens escolhidas:
-              </FixedText>
-              <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
-                {languages.map(lang => languageLabels[lang]).join(', ')}
-              </FixedText>
-            </View>
-
-            {/* Nível */}
-            <View style={styles.summarySection}>
-              <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
-                📊 Seu nível:
-              </FixedText>
-              <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
-                {levelLabels[level]}
-              </FixedText>
-            </View>
-
-            {/* Meta Diária */}
-            <View style={styles.summarySection}>
-              <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
-                ⏰ Meta diária:
-              </FixedText>
-              <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
-                {dailyGoalMin} minutos por dia
-              </FixedText>
-            </View>
-
-            {/* Motivações */}
-            <View style={styles.summarySection}>
-              <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
-                💪 Suas motivações:
-              </FixedText>
-              <FixedText variant="body" color={colors.textSecondary} style={styles.sectionContent}>
-                {motivation.map(mot => motivationLabels[mot]).join(', ')}
-              </FixedText>
-            </View>
-          </ScrollView>
-
-          {/* Loading Indicator quando carregando */}
-          {isLoading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={colors.primary} />
-              <FixedText variant="body" color={colors.textSecondary} style={styles.loadingText}>
-                Criando sua jornada personalizada...
-              </FixedText>
-            </View>
-          )}
-        </View>
-
-        {/* Bottom CTA */}
-        <BottomCTA
-          primaryTitle="COMEÇAR MISSÃO"
-          primaryOnPress={handleStartMission}
-          primaryLoading={isLoading}
-          showSecondary={false}
-        />
+        {/* Bottom CTA - Só mostra quando não está no modo missão */}
+        {!showMissionMode && (
+          <BottomCTA
+            primaryTitle="COMEÇAR MISSÃO"
+            primaryOnPress={handleStartMission}
+            primaryLoading={isLoading}
+            showSecondary={false}
+          />
+        )}
       </SafeAreaView>
     </LinearGradient>
   );
@@ -221,6 +265,23 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
   },
   loadingText: {
+    marginTop: spacing.md,
+    textAlign: 'center',
+  },
+  missionModeContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  missionLoaderContainer: {
+    position: 'absolute',
+    bottom: spacing.xl * 2,
+    alignItems: 'center',
+    left: 0,
+    right: 0,
+  },
+  missionLoaderText: {
     marginTop: spacing.md,
     textAlign: 'center',
   },
