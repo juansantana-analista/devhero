@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { safeHaptics } from '../../utils/haptics';
 import * as Haptics from 'expo-haptics';
+import HeroAvatar from '../../components/HeroAvatar';
+import SpeechBubble from '../../components/SpeechBubble';
 import OptionCard from '../../components/OptionCard';
 import BottomCTA from '../../components/BottomCTA';
 import ProgressBar from '../../components/ProgressBar';
-import FixedText from '../../components/FixedText';
+import TypewriterText from '../../components/TypewriterText';
 import { useOnboardingStore } from '../../state/useOnboardingStore';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -15,6 +17,7 @@ import { spacing } from '../../theme/spacing';
 const StepLevel = ({ navigation }) => {
   const { level, setLevel } = useOnboardingStore();
   const [selectedLevel, setSelectedLevel] = useState(level);
+  const [isTypewriterComplete, setIsTypewriterComplete] = useState(false);
 
   const levelOptions = [
     { 
@@ -59,6 +62,16 @@ const StepLevel = ({ navigation }) => {
 
   const canContinue = selectedLevel !== null;
 
+  useEffect(() => {
+    // Vibração leve de boas-vindas
+    safeHaptics.impact(Haptics.ImpactFeedbackStyle.Light);
+    console.log('StepLevel: Componente montado');
+  }, []);
+
+  const handleTypewriterComplete = useCallback(() => {
+    setIsTypewriterComplete(true);
+  }, []);
+
   return (
     <LinearGradient
       colors={colors.backgroundGradient}
@@ -68,20 +81,30 @@ const StepLevel = ({ navigation }) => {
         {/* Progress Bar */}
         <ProgressBar progress={0.5} /> {/* 3/6 = 0.5 */}
         
-        <ScrollView 
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Título */}
-          <View style={styles.header}>
-            <FixedText variant="h2" color={colors.textPrimary} style={styles.title}>
-              Qual é o seu nível hoje?
-            </FixedText>
+        <View style={styles.content}>
+          {/* Avatar e Speech Bubble na mesma linha */}
+          <View style={styles.headerRow}>
+            <View style={styles.avatarContainer}>
+              <HeroAvatar size={spacing.lg * 4} />
+            </View>
+            
+            <View style={styles.bubbleContainer}>
+              <SpeechBubble animate={true} arrowDirection="left">
+                <TypewriterText 
+                  text="Qual é o seu nível hoje?"
+                  speed={50}
+                  onComplete={handleTypewriterComplete}
+                />
+              </SpeechBubble>
+            </View>
           </View>
 
           {/* Opções de Nível */}
-          <View style={styles.optionsContainer}>
+          <ScrollView 
+            style={styles.optionsScroll}
+            contentContainerStyle={styles.optionsContainer}
+            showsVerticalScrollIndicator={false}
+          >
             {levelOptions.map((levelOption) => (
               <OptionCard
                 key={levelOption.id}
@@ -92,8 +115,8 @@ const StepLevel = ({ navigation }) => {
                 onPress={() => handleLevelSelect(levelOption.id)}
               />
             ))}
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
 
         {/* Bottom CTA */}
         <BottomCTA
@@ -116,20 +139,27 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  scrollContent: {
     paddingHorizontal: spacing.screenPadding,
     paddingBottom: spacing.bottomSafeArea,
   },
-  header: {
-    paddingVertical: spacing.xl,
-    alignItems: 'center',
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.xl,
+    marginTop: spacing.lg,
   },
-  title: {
-    textAlign: 'center',
+  avatarContainer: {
+    marginRight: spacing.md,
+  },
+  bubbleContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  optionsScroll: {
+    flex: 1,
   },
   optionsContainer: {
-    flex: 1,
+    paddingBottom: spacing.lg,
   },
 });
 

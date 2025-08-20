@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { safeHaptics } from '../../utils/haptics';
 import * as Haptics from 'expo-haptics';
+import HeroAvatar from '../../components/HeroAvatar';
+import SpeechBubble from '../../components/SpeechBubble';
 import BottomCTA from '../../components/BottomCTA';
 import ProgressBar from '../../components/ProgressBar';
+import TypewriterText from '../../components/TypewriterText';
 import FixedText from '../../components/FixedText';
 import { useOnboardingStore } from '../../state/useOnboardingStore';
 import { colors } from '../../theme/colors';
@@ -14,6 +17,7 @@ import { spacing } from '../../theme/spacing';
 const StepSummary = ({ navigation }) => {
   const { languages, level, dailyGoalMin, motivation, setCompleted } = useOnboardingStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isTypewriterComplete, setIsTypewriterComplete] = useState(false);
 
   const languageLabels = {
     html: 'HTML',
@@ -60,6 +64,16 @@ const StepSummary = ({ navigation }) => {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    // Vibração leve de boas-vindas
+    safeHaptics.impact(Haptics.ImpactFeedbackStyle.Light);
+    console.log('StepSummary: Componente montado');
+  }, []);
+
+  const handleTypewriterComplete = useCallback(() => {
+    setIsTypewriterComplete(true);
+  }, []);
+
   return (
     <LinearGradient
       colors={colors.backgroundGradient}
@@ -69,20 +83,30 @@ const StepSummary = ({ navigation }) => {
         {/* Progress Bar */}
         <ProgressBar progress={1} /> {/* 6/6 = 1 */}
         
-        <ScrollView 
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Título Principal */}
-          <View style={styles.header}>
-            <FixedText variant="h2" color={colors.textPrimary} style={styles.title}>
-              Perfeito! Preparando sua primeira missão personalizada…
-            </FixedText>
+        <View style={styles.content}>
+          {/* Speech Bubble e Avatar na mesma linha (invertido) */}
+          <View style={styles.headerRow}>
+            <View style={styles.bubbleContainer}>
+              <SpeechBubble animate={true} arrowDirection="right">
+                <TypewriterText 
+                  text="Perfeito! Preparando sua primeira missão personalizada…"
+                  speed={50}
+                  onComplete={handleTypewriterComplete}
+                />
+              </SpeechBubble>
+            </View>
+            
+            <View style={styles.avatarContainer}>
+              <HeroAvatar size={spacing.lg * 4} />
+            </View>
           </View>
 
           {/* Resumo das Escolhas */}
-          <View style={styles.summaryContainer}>
+          <ScrollView 
+            style={styles.summaryScroll}
+            contentContainerStyle={styles.summaryContainer}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Linguagens */}
             <View style={styles.summarySection}>
               <FixedText variant="h3" color={colors.primary} style={styles.sectionTitle}>
@@ -122,7 +146,7 @@ const StepSummary = ({ navigation }) => {
                 {motivation.map(mot => motivationLabels[mot]).join(', ')}
               </FixedText>
             </View>
-          </View>
+          </ScrollView>
 
           {/* Loading Indicator quando carregando */}
           {isLoading && (
@@ -133,7 +157,7 @@ const StepSummary = ({ navigation }) => {
               </FixedText>
             </View>
           )}
-        </ScrollView>
+        </View>
 
         {/* Bottom CTA */}
         <BottomCTA
@@ -156,17 +180,24 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  scrollContent: {
     paddingHorizontal: spacing.screenPadding,
     paddingBottom: spacing.bottomSafeArea,
   },
-  header: {
-    paddingVertical: spacing.xl,
-    alignItems: 'center',
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.xl,
+    marginTop: spacing.lg,
   },
-  title: {
-    textAlign: 'center',
+  bubbleContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  avatarContainer: {
+    marginLeft: spacing.md,
+  },
+  summaryScroll: {
+    flex: 1,
   },
   summaryContainer: {
     backgroundColor: colors.surface,

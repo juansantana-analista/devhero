@@ -5,7 +5,7 @@ import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 
-const SpeechBubble = ({ children, variant = 'default', style, animate = true }) => {
+const SpeechBubble = ({ children, variant = 'default', style, animate = true, arrowDirection = 'bottom' }) => {
   const fadeAnim = useRef(new Animated.Value(animate ? 0 : 1)).current;
   const scaleAnim = useRef(new Animated.Value(animate ? 0.8 : 1)).current;
 
@@ -43,6 +43,57 @@ const SpeechBubble = ({ children, variant = 'default', style, animate = true }) 
     transform: [{ scale: scaleAnim }],
   };
 
+  const getPointerStyle = () => {
+    const baseStyle = {
+      position: 'absolute',
+      width: 16,
+      height: 16,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      transform: [{ rotate: '45deg' }],
+    };
+
+    switch (arrowDirection) {
+      case 'left':
+        return {
+          ...baseStyle,
+          left: -8,
+          top: '50%',
+          marginTop: -8,
+          borderTopWidth: 0,
+          borderRightWidth: 0,
+        };
+      case 'right':
+        return {
+          ...baseStyle,
+          right: -8,
+          top: '50%',
+          marginTop: -8,
+          borderTopWidth: 0,
+          borderLeftWidth: 0,
+        };
+      case 'top':
+        return {
+          ...baseStyle,
+          top: -8,
+          left: '50%',
+          marginLeft: -8,
+          borderBottomWidth: 0,
+          borderLeftWidth: 0,
+        };
+      default: // bottom
+        return {
+          ...baseStyle,
+          bottom: -8,
+          left: '50%',
+          marginLeft: -8,
+          borderTopWidth: 0,
+          borderLeftWidth: 0,
+        };
+    }
+  };
+
   return (
     <Animated.View style={[styles.container, animatedStyle, style]}>
       <View style={[styles.bubble, getVariantStyle()]}>
@@ -53,7 +104,7 @@ const SpeechBubble = ({ children, variant = 'default', style, animate = true }) 
         ) : (
           children
         )}
-        <View style={[styles.pointer, getVariantStyle()]} />
+        <View style={[styles.pointer, getPointerStyle()]} />
       </View>
     </Animated.View>
   );
@@ -83,16 +134,11 @@ const styles = StyleSheet.create({
   },
   pointer: {
     position: 'absolute',
-    bottom: -8,
-    left: '50%',
-    marginLeft: -8,
     width: 16,
     height: 16,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderTopWidth: 0,
-    borderLeftWidth: 0,
     transform: [{ rotate: '45deg' }],
   },
 });

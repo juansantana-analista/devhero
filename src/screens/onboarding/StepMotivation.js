@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { safeHaptics } from '../../utils/haptics';
 import * as Haptics from 'expo-haptics';
+import HeroAvatar from '../../components/HeroAvatar';
+import SpeechBubble from '../../components/SpeechBubble';
 import OptionCard from '../../components/OptionCard';
 import BottomCTA from '../../components/BottomCTA';
 import ProgressBar from '../../components/ProgressBar';
-import FixedText from '../../components/FixedText';
+import TypewriterText from '../../components/TypewriterText';
 import { useOnboardingStore } from '../../state/useOnboardingStore';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -15,6 +17,7 @@ import { spacing } from '../../theme/spacing';
 const StepMotivation = ({ navigation }) => {
   const { motivation, setMotivation } = useOnboardingStore();
   const [selectedMotivations, setSelectedMotivations] = useState(motivation);
+  const [isTypewriterComplete, setIsTypewriterComplete] = useState(false);
 
   const motivationOptions = [
     { 
@@ -68,6 +71,16 @@ const StepMotivation = ({ navigation }) => {
 
   const canContinue = selectedMotivations.length > 0;
 
+  useEffect(() => {
+    // Vibração leve de boas-vindas
+    safeHaptics.impact(Haptics.ImpactFeedbackStyle.Light);
+    console.log('StepMotivation: Componente montado');
+  }, []);
+
+  const handleTypewriterComplete = useCallback(() => {
+    setIsTypewriterComplete(true);
+  }, []);
+
   return (
     <LinearGradient
       colors={colors.backgroundGradient}
@@ -77,20 +90,30 @@ const StepMotivation = ({ navigation }) => {
         {/* Progress Bar */}
         <ProgressBar progress={0.83} /> {/* 5/6 = ~0.83 */}
         
-        <ScrollView 
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Título */}
-          <View style={styles.header}>
-            <FixedText variant="h2" color={colors.textPrimary} style={styles.title}>
-              Por que você quer aprender?
-            </FixedText>
+        <View style={styles.content}>
+          {/* Avatar e Speech Bubble na mesma linha */}
+          <View style={styles.headerRow}>
+            <View style={styles.avatarContainer}>
+              <HeroAvatar size={spacing.lg * 4} />
+            </View>
+            
+            <View style={styles.bubbleContainer}>
+              <SpeechBubble animate={true} arrowDirection="left">
+                <TypewriterText 
+                  text="Por que você quer aprender?"
+                  speed={50}
+                  onComplete={handleTypewriterComplete}
+                />
+              </SpeechBubble>
+            </View>
           </View>
 
           {/* Opções de Motivação */}
-          <View style={styles.optionsContainer}>
+          <ScrollView 
+            style={styles.optionsScroll}
+            contentContainerStyle={styles.optionsContainer}
+            showsVerticalScrollIndicator={false}
+          >
             {motivationOptions.map((motivationOption) => (
               <OptionCard
                 key={motivationOption.id}
@@ -101,8 +124,8 @@ const StepMotivation = ({ navigation }) => {
                 onPress={() => handleMotivationSelect(motivationOption.id)}
               />
             ))}
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
 
         {/* Bottom CTA */}
         <BottomCTA
@@ -125,20 +148,27 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  scrollContent: {
     paddingHorizontal: spacing.screenPadding,
     paddingBottom: spacing.bottomSafeArea,
   },
-  header: {
-    paddingVertical: spacing.xl,
-    alignItems: 'center',
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.xl,
+    marginTop: spacing.lg,
   },
-  title: {
-    textAlign: 'center',
+  avatarContainer: {
+    marginRight: spacing.md,
+  },
+  bubbleContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  optionsScroll: {
+    flex: 1,
   },
   optionsContainer: {
-    flex: 1,
+    paddingBottom: spacing.lg,
   },
 });
 

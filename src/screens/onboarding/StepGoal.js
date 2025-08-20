@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { safeHaptics } from '../../utils/haptics';
 import * as Haptics from 'expo-haptics';
+import HeroAvatar from '../../components/HeroAvatar';
+import SpeechBubble from '../../components/SpeechBubble';
 import OptionCard from '../../components/OptionCard';
 import BottomCTA from '../../components/BottomCTA';
 import ProgressBar from '../../components/ProgressBar';
+import TypewriterText from '../../components/TypewriterText';
 import FixedText from '../../components/FixedText';
 import { useOnboardingStore } from '../../state/useOnboardingStore';
 import { colors } from '../../theme/colors';
@@ -15,6 +18,7 @@ import { spacing } from '../../theme/spacing';
 const StepGoal = ({ navigation }) => {
   const { dailyGoalMin, setDailyGoalMin } = useOnboardingStore();
   const [selectedGoal, setSelectedGoal] = useState(dailyGoalMin);
+  const [isTypewriterComplete, setIsTypewriterComplete] = useState(false);
 
   const goalOptions = [
     { 
@@ -59,6 +63,16 @@ const StepGoal = ({ navigation }) => {
 
   const canContinue = selectedGoal !== null;
 
+  useEffect(() => {
+    // Vibração leve de boas-vindas
+    safeHaptics.impact(Haptics.ImpactFeedbackStyle.Light);
+    console.log('StepGoal: Componente montado');
+  }, []);
+
+  const handleTypewriterComplete = useCallback(() => {
+    setIsTypewriterComplete(true);
+  }, []);
+
   return (
     <LinearGradient
       colors={colors.backgroundGradient}
@@ -68,23 +82,35 @@ const StepGoal = ({ navigation }) => {
         {/* Progress Bar */}
         <ProgressBar progress={0.67} /> {/* 4/6 = ~0.67 */}
         
-        <ScrollView 
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Título */}
-          <View style={styles.header}>
-            <FixedText variant="h2" color={colors.textPrimary} style={styles.title}>
-              Defina sua meta diária
-            </FixedText>
-            <FixedText variant="body" color={colors.textSecondary} style={styles.subtitle}>
-              Manter uma sequência diária acelera sua evolução.
-            </FixedText>
+        <View style={styles.content}>
+          {/* Avatar e Speech Bubble na mesma linha */}
+          <View style={styles.headerRow}>
+            <View style={styles.avatarContainer}>
+              <HeroAvatar size={spacing.lg * 4} />
+            </View>
+            
+            <View style={styles.bubbleContainer}>
+              <SpeechBubble animate={true} arrowDirection="left">
+                <View style={styles.bubbleContent}>
+                  <TypewriterText 
+                    text="Defina sua meta diária"
+                    speed={50}
+                    onComplete={handleTypewriterComplete}
+                  />
+                  <FixedText variant="body" color={colors.textSecondary} style={styles.subtitle}>
+                    Manter uma sequência diária acelera sua evolução.
+                  </FixedText>
+                </View>
+              </SpeechBubble>
+            </View>
           </View>
 
           {/* Opções de Meta */}
-          <View style={styles.optionsContainer}>
+          <ScrollView 
+            style={styles.optionsScroll}
+            contentContainerStyle={styles.optionsContainer}
+            showsVerticalScrollIndicator={false}
+          >
             {goalOptions.map((goalOption) => (
               <OptionCard
                 key={goalOption.id}
@@ -95,8 +121,8 @@ const StepGoal = ({ navigation }) => {
                 onPress={() => handleGoalSelect(goalOption.id)}
               />
             ))}
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
 
         {/* Bottom CTA */}
         <BottomCTA
@@ -119,24 +145,34 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  scrollContent: {
     paddingHorizontal: spacing.screenPadding,
     paddingBottom: spacing.bottomSafeArea,
   },
-  header: {
-    paddingVertical: spacing.xl,
-    alignItems: 'center',
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.xl,
+    marginTop: spacing.lg,
   },
-  title: {
-    textAlign: 'center',
-    marginBottom: spacing.md,
+  avatarContainer: {
+    marginRight: spacing.md,
+  },
+  bubbleContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  bubbleContent: {
+    alignItems: 'center',
   },
   subtitle: {
     textAlign: 'center',
+    marginTop: spacing.sm,
+  },
+  optionsScroll: {
+    flex: 1,
   },
   optionsContainer: {
-    flex: 1,
+    paddingBottom: spacing.lg,
   },
 });
 
